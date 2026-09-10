@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ExamSecure — Maquettes UI (Flutter + Django)</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  :root{
+    --primary:#3B5BDB; --primary-dark:#2B44A6; --primary-soft:#EDF0FE;
+    --accent:#F59F00; --bg:#F4F6FB; --surface:#fff;
+    --text:#1B2430; --muted:#64748B; --faint:#8A97AD; --border:#E3E8F0;
+    --success:#2F9E44; --success-soft:#E7F6EC;
+    --danger:#E03131; --danger-soft:#FDECEC;
+    --warning:#E8590C; --warning-soft:#FFF3E0;
+    --navy:#14213D; --adm:#4CC9F0;
+  }
+  body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:#EAEEF5; color:var(--text); padding:36px 24px 70px; }
+  .page-title{ text-align:center; font-size:27px; font-weight:800; letter-spacing:-.4px; }
+  .page-sub{ text-align:center; color:#5A6B85; margin-top:7px; font-size:13.5px; max-width:760px; margin-left:auto; margin-right:auto; line-height:1.5; }
+  .legend{ max-width:1100px; margin:20px auto 0; display:flex; gap:9px; justify-content:center; flex-wrap:wrap; }
+  .legend .item{ background:#fff; border:1px solid #DDE4EF; border-radius:10px; padding:7px 12px; font-size:11.5px; color:#41506A; display:flex; align-items:center; gap:7px; font-weight:600; }
+  .swatch{ width:13px; height:13px; border-radius:4px; display:inline-block; }
+  section.block{ max-width:1320px; margin:46px auto 0; }
+  .block h2{ font-size:19px; font-weight:800; display:flex; align-items:center; gap:10px; }
+  .block h2 .tag{ font-size:10.5px; font-weight:800; padding:4px 10px; border-radius:999px; letter-spacing:.5px; }
+  .tag-stu{ background:var(--primary-soft); color:var(--primary); }
+  .tag-adm{ background:#14213D; color:var(--adm); }
+  .b-sub{ color:#5A6B85; font-size:13px; margin:5px 0 20px; }
+  .phones{ display:flex; flex-wrap:wrap; gap:30px; justify-content:center; }
+  .phone-wrap{ display:flex; flex-direction:column; align-items:center; gap:11px; }
+  .phone-label{ font-size:12.5px; font-weight:700; color:#33415E; background:#fff; border:1px solid #DDE4EF; padding:5px 14px; border-radius:999px; }
+  .phone{ width:334px; height:706px; border-radius:44px; background:#0B1220; padding:10px; box-shadow:0 20px 44px rgba(16,24,40,.20); }
+  .screen{ position:relative; width:100%; height:100%; border-radius:34px; background:var(--bg); overflow:hidden; display:flex; flex-direction:column; }
+  .notch{ position:absolute; top:9px; left:50%; transform:translateX(-50%); width:88px; height:19px; background:#0B1220; border-radius:999px; z-index:6; }
+  .statusbar{ height:36px; display:flex; justify-content:space-between; align-items:center; padding:0 20px; font-size:11px; font-weight:700; flex-shrink:0; }
+  .statusbar.dark{ color:#fff; background:var(--navy); }
+  .statusbar .sb-right{ display:flex; gap:6px; align-items:center; }
+  .sb-signal{ display:flex; align-items:flex-end; gap:1.5px; }
+  .sb-signal i{ width:3px; background:currentColor; border-radius:1px; display:block; }
+  .sb-signal i:nth-child(1){height:4px} .sb-signal i:nth-child(2){height:6px} .sb-signal i:nth-child(3){height:8px} .sb-signal i:nth-child(4){height:10px}
+  .sb-battery{ width:21px; height:10px; border:1.4px solid currentColor; border-radius:3px; position:relative; }
+  .sb-battery::after{ content:""; position:absolute; inset:1.5px; right:5px; background:currentColor; border-radius:1px; }
+  .sb-battery::before{ content:""; position:absolute; right:-4px; top:2.5px; width:2px; height:4px; background:currentColor; border-radius:1px; }
+  .content{ flex:1; overflow:hidden; padding:2px 14px 10px; }
+  .ic{ width:18px; height:18px; flex-shrink:0; }
+  .ic.sm{ width:15px; height:15px; } .ic.xs{ width:13px; height:13px; }
+  .appbar{ display:flex; align-items:center; justify-content:space-between; padding:8px 2px 10px; }
+  .appbar .ab-title{ font-size:15.5px; font-weight:800; }
+  .appbar .ab-sub{ font-size:10.5px; color:var(--faint); margin-top:1px; }
+  .iconbtn{ width:32px; height:32px; border-radius:10px; background:#fff; border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:#41506A; position:relative; }
+  .iconbtn .dot{ position:absolute; top:5px; right:6px; width:8px; height:8px; background:var(--danger); border-radius:50%; border:1.5px solid #fff; }
+  .logo{ width:30px; height:30px; border-radius:9px; background:var(--primary); display:flex; align-items:center; justify-content:center; color:#fff; }
+  .search{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:10px 12px; font-size:12px; color:var(--faint); display:flex; align-items:center; gap:8px; margin-bottom:10px; }
+  .chips{ display:flex; gap:7px; flex-wrap:wrap; margin-bottom:4px; }
+  .chip{ font-size:10.5px; padding:6px 11px; border-radius:999px; background:#fff; border:1px solid var(--border); color:#5A6B85; font-weight:700; display:inline-flex; align-items:center; gap:5px; }
+  .chip.on{ background:var(--primary); color:#fff; border-color:var(--primary); }
+  .chip.dark{ background:var(--navy); color:#fff; border-color:var(--navy); }
+  .sec{ display:flex; justify-content:space-between; align-items:baseline; margin:14px 2px 9px; }
+  .sec h4{ font-size:12.5px; font-weight:800; }
+  .sec a{ font-size:10.5px; color:var(--primary); font-weight:700; }
+  .card{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:11px 12px; }
+  .btn{ border-radius:12px; padding:12px; text-align:center; font-size:12.5px; font-weight:800; display:flex; align-items:center; justify-content:center; gap:7px; }
+  .btn-primary{ background:var(--primary); color:#fff; box-shadow:0 7px 16px rgba(59,91,219,.28); }
+  .btn-ghost{ background:#fff; border:1.5px solid var(--primary); color:var(--primary); }
+  .btn-danger-o{ background:#fff; border:1.5px solid var(--danger); color:var(--danger); }
+  .btn-sm{ padding:7px 12px; font-size:10.5px; border-radius:9px; }
+  .btn-adm{ background:var(--navy); color:#fff; }
+  .badge{ font-size:9px; font-weight:800; padding:3.5px 8px; border-radius:999px; letter-spacing:.45px; display:inline-flex; align-items:center; gap:4px; white-space:nowrap; }
+  .b-green{ background:var(--success-soft); color:var(--success); }
+  .b-amber{ background:var(--warning-soft); color:var(--warning); }
+  .b-red{ background:var(--danger-soft); color:var(--danger); }
+  .b-blue{ background:var(--primary-soft); color:var(--primary); }
+  .b-gray{ background:#EEF1F6; color:var(--muted); }
+  .field{ background:#fff; border:1px solid var(--border); border-radius:12px; padding:11px 12px; font-size:12px; color:var(--faint); display:flex; align-items:center; gap:8px; margin-bottom:9px; }
+  .field .lbl{ font-size:9.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; display:block; margin-bottom:4px; }
+  .field .col{ flex:1; }
+  .field .eye{ color:var(--faint); }
+  .field textarea{ width:100%; border:none; outline:none; font-size:11.5px; color:var(--faint); font-family:inherit; resize:none; height:52px; background:transparent; }
+  .row{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:10px; display:flex; align-items:center; gap:10px; margin-bottom:9px; }
+  .thumb{ width:46px; height:46px; border-radius:11px; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .avatar{ width:40px; height:40px; border-radius:50%; background:var(--primary-soft); color:var(--primary); font-weight:800; font-size:12.5px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .avatar.adm{ background:#E0F5FE; color:#0B7285; }
+  .r-main{ flex:1; min-width:0; }
+  .r-title{ font-size:12px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .r-sub{ font-size:10px; color:var(--faint); margin-top:2.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .r-right{ display:flex; flex-direction:column; align-items:flex-end; gap:4px; flex-shrink:0; }
+  .price{ font-weight:800; font-size:12px; }
+  .price small{ font-size:9px; color:var(--faint); font-weight:700; }
+  .g1{ background:linear-gradient(135deg,#3B5BDB,#7048E8); }
+  .g2{ background:linear-gradient(135deg,#0CA678,#20C997); }
+  .g3{ background:linear-gradient(135deg,#E8590C,#F59F00); }
+  .g4{ background:linear-gradient(135deg,#0B7285,#15AABF); }
+  .nav{ height:64px; background:#fff; border-top:1px solid var(--border); display:flex; align-items:center; justify-content:space-around; flex-shrink:0; padding:0 8px; }
+  .nav .n{ display:flex; flex-direction:column; align-items:center; gap:3.5px; font-size:9px; color:var(--faint); font-weight:700; position:relative; }
+  .nav .n.on{ color:var(--primary); }
+  .nav .n .dot{ position:absolute; top:-3px; right:8px; width:9px; height:9px; background:var(--danger); border-radius:50%; border:1.5px solid #fff; }
+  .nav.adm .n.on{ color:var(--navy); }
+  .nav.adm .n .dot{ top:-3px; right:7px; width:9px; height:9px; background:var(--accent); border-radius:50%; border:1.5px solid #fff; }
+  .hscroll{ display:flex; gap:10px; overflow:hidden; }
+  .hcard{ width:148px; flex-shrink:0; background:#fff; border:1px solid var(--border); border-radius:14px; overflow:hidden; }
+  .hcard .cover{ height:82px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px; color:#fff; }
+  .hcard .cover .pg{ font-size:9px; font-weight:700; opacity:.85; letter-spacing:.4px; }
+  .hcard .hb{ padding:9px 10px 10px; }
+  .hcard .t{ font-size:11px; font-weight:700; line-height:1.3; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .hcard .s{ font-size:9.5px; color:var(--faint); margin-top:3px; }
+  .prog{ height:6px; background:#EDF0F7; border-radius:3px; overflow:hidden; }
+  .prog i{ display:block; height:100%; background:var(--primary); border-radius:3px; }
+  .bigcover{ height:128px; border-radius:16px; display:flex; align-items:center; justify-content:center; color:#fff; position:relative; margin-bottom:12px; }
+  .bigcover .pv{ position:absolute; top:10px; right:10px; background:rgba(255,255,255,.22); backdrop-filter:blur(2px); border:1px solid rgba(255,255,255,.35); color:#fff; font-size:9px; font-weight:800; padding:4px 9px; border-radius:999px; display:flex; gap:5px; align-items:center; letter-spacing:.3px; }
+  .meta{ display:flex; gap:6px; flex-wrap:wrap; margin-bottom:11px; }
+  .incl{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:4px 12px; margin-top:11px; }
+  .incl .li{ display:flex; align-items:center; gap:9px; padding:8.5px 0; font-size:11px; font-weight:600; color:#33415E; border-bottom:1px solid #F0F3F9; }
+  .incl .li:last-child{ border-bottom:none; }
+  .incl .li .icw{ width:26px; height:26px; border-radius:8px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; }
+  .bottombar{ background:#fff; border-top:1px solid var(--border); padding:10px 14px 14px; flex-shrink:0; }
+  .bottombar .pp{ display:flex; justify-content:space-between; align-items:center; margin-bottom:9px; }
+  .bottombar .pp .amt{ font-size:16px; font-weight:800; }
+  .bottombar .pp .amt small{ font-size:10px; color:var(--faint); font-weight:700; }
+  .bottombar .note{ font-size:9.5px; color:var(--faint); text-align:center; margin-top:8px; }
+  .info{ display:flex; gap:9px; background:var(--primary-soft); border:1px solid #D9E1FD; border-radius:12px; padding:10px 11px; font-size:10.5px; color:#33415E; line-height:1.45; margin-bottom:11px; align-items:flex-start; }
+  .info .ic{ color:var(--primary); margin-top:1px; }
+  .info.amber{ background:var(--warning-soft); border-color:#FFE3C2; }
+  .info.amber .ic{ color:var(--warning); }
+  /* Reader */
+  .screen.reader{ background:#10151F; }
+  .reader .rbar{ display:flex; align-items:center; justify-content:space-between; padding:8px 14px 10px; color:#fff; }
+  .reader .rbar .t{ font-size:12px; font-weight:700; flex:1; margin:0 10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .reader .rback{ width:30px; height:30px; border-radius:9px; background:rgba(255,255,255,.10); display:flex; align-items:center; justify-content:center; }
+  .offpill{ display:flex; align-items:center; gap:5px; background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); padding:4.5px 9px; border-radius:999px; font-size:8.5px; font-weight:800; letter-spacing:.6px; color:#9FE6C0; }
+  .offpill .d{ width:6px; height:6px; background:#51CF66; border-radius:50%; }
+  .sheet{ margin:4px 14px 10px; background:#fff; border-radius:8px; flex:1; padding:18px 16px; position:relative; overflow:hidden; box-shadow:0 10px 30px rgba(0,0,0,.35); }
+  .tl{ height:7px; background:#E4E9F2; border-radius:3px; margin-bottom:9px; }
+  .tl.head{ height:11px; width:70%; background:#C9D3E6; margin-bottom:14px; }
+  .tl.w80{ width:80% } .tl.w92{ width:92% } .tl.w60{ width:60% } .tl.w88{ width:88% } .tl.w74{ width:74% }
+  .wm{ position:absolute; color:rgba(59,91,219,.13); font-weight:800; font-size:13.5px; white-space:nowrap; letter-spacing:.8px; transform:rotate(-27deg); pointer-events:none; }
+  .reader .rfoot{ display:flex; align-items:center; justify-content:space-between; padding:0 16px 14px; color:#fff; }
+  .pgbtn{ width:34px; height:34px; border-radius:50%; background:rgba(255,255,255,.12); display:flex; align-items:center; justify-content:center; }
+  .pgpill{ background:rgba(255,255,255,.10); border:1px solid rgba(255,255,255,.18); padding:7px 16px; border-radius:999px; font-size:11px; font-weight:700; }
+  .prot{ display:flex; align-items:center; gap:6px; font-size:9.5px; color:#9FB0CC; font-weight:700; }
+  /* Admin */
+  .adm-top{ background:var(--navy); color:#fff; padding:0 14px 13px; flex-shrink:0; }
+  .adm-top .at{ display:flex; align-items:center; justify-content:space-between; padding-top:6px; }
+  .adm-top .at h3{ font-size:15.5px; font-weight:800; }
+  .adm-top .at .plus{ width:32px; height:32px; border-radius:10px; background:var(--adm); color:var(--navy); display:flex; align-items:center; justify-content:center; }
+  .stats{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .stat{ background:#fff; border:1px solid var(--border); border-radius:14px; padding:11px 12px; }
+  .stat .lbl{ font-size:9px; color:var(--muted); font-weight:800; text-transform:uppercase; letter-spacing:.5px; display:flex; align-items:center; gap:5px; }
+  .stat .val{ font-size:16.5px; font-weight:800; margin-top:4px; }
+  .stat .delta{ font-size:9.5px; color:var(--success); font-weight:700; margin-top:2px; }
+  .stat .delta.mut{ color:var(--faint); }
+  .chart{ display:flex; align-items:flex-end; gap:7px; height:84px; margin-top:8px; }
+  .chart i{ flex:1; background:linear-gradient(180deg,#4CC9F0,#3B82F6); border-radius:4px 4px 2px 2px; }
+  .chart-lbls{ display:flex; gap:7px; margin-top:5px; }
+  .chart-lbls span{ flex:1; text-align:center; font-size:8.5px; color:var(--faint); font-weight:700; }
+  .alertc{ display:flex; align-items:center; gap:10px; background:var(--warning-soft); border:1px solid #FFE3C2; border-radius:14px; padding:11px 12px; margin-top:9px; }
+  .alertc .aw{ width:34px; height:34px; border-radius:10px; background:#fff; color:var(--warning); display:flex; align-items:center; justify-content:center; flex-shrink:0; border:1px solid #FFE3C2; }
+  .alertc .am{ flex:1; }
+  .alertc .am b{ font-size:11.5px; display:block; }
+  .alertc .am span{ font-size:9.5px; color:#A05A1E; }
+  .flowbox{ background:#fff; border:1px solid #DDE4EF; border-radius:16px; padding:18px; width:330px; }
+  .flowbox h4{ font-size:13.5px; font-weight:800; margin-bottom:14px; display:flex; align-items:center; gap:8px; }
+  .flowbox h4 .fi{ width:28px; height:28px; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; }
+  .fstep{ background:var(--bg); border:1px solid var(--border); border-radius:9px; padding:7px 10px; font-size:11px; font-weight:600; color:#33415E; text-align:center; }
+  .farrow{ text-align:center; color:#9AA8BF; font-size:12px; line-height:1.2; padding:3px 0; }
+  .foot{ text-align:center; color:#8593AB; font-size:11.5px; margin-top:50px; line-height:1.6; }
+</style>
+</head>
+<body>
+
+<svg style="display:none" xmlns="http://www.w3.org/2000/svg">
+  <symbol id="i-home" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></symbol>
+  <symbol id="i-cart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-download" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></symbol>
+  <symbol id="i-chev-l" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></symbol>
+  <symbol id="i-chev-r" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-logout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></symbol>
+  <symbol id="i-card" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></symbol>
+  <symbol id="i-zap" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></symbol>
+</svg>
+
+<div class="page-title">ExamSecure — Maquettes UI</div>
+<div class="page-sub">
+Application mobile unique Flutter (Android &amp; iOS) avec deux espaces : <b>Étudiant</b> et <b>Administrateur</b>.<br>
+Backend central : Django + DRF + MySQL + JWT + KkiaPay. Devise : <b>FCFA</b>. Nom d'application provisoire : <i>ExamSecure</i> (modifiable).
+</div>
+
+<div class="legend">
+  <div class="item"><span class="swatch" style="background:#3B5BDB"></span> Primaire — Espace étudiant</div>
+  <div class="item"><span class="swatch" style="background:#14213D"></span> Marine — Espace admin</div>
+  <div class="item"><span class="swatch" style="background:#4CC9F0"></span> Accent admin</div>
+  <div class="item"><span class="swatch" style="background:#F59F00"></span> Prix / alertes</div>
+  <div class="item"><span class="swatch" style="background:#2F9E44"></span> Succès</div>
+  <div class="item"><span class="swatch" style="background:#E03131"></span> Erreur / danger</div>
+  <div class="item">Material 3 • Icônes SVG (aucun emoji)</div>
+</div>
+
+<!-- ==================== ESPACE ÉTUDIANT ==================== -->
+<section class="block">
+  <h2><span class="tag tag-stu">ESPACE ÉTUDIANT</span> Écrans principaux</h2>
+  <div class="b-sub">Parcours : Connexion → Dashboard → Catalogue → Détails → Paiement KkiaPay → Lecture sécurisée hors ligne.</div>
+  <div class="phones">
+
+    <!-- 1. LOGIN -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="content" style="display:flex; flex-direction:column; justify-content:center; padding-top:0;">
+          <div style="text-align:center; margin-bottom:26px;">
+            <div class="logo" style="width:52px; height:52px; border-radius:16px; margin:0 auto 12px;">
+              <svg class="ic" style="width:26px; height:26px;"><use href="#i-shield"/></svg>
+            </div>
+            <div style="font-size:19px; font-weight:800; letter-spacing:-.3px;">ExamSecure</div>
+            <div style="font-size:11px; color:var(--faint); margin-top:3px;">Épreuves universitaires sécurisées</div>
+          </div>
+          <div class="card" style="padding:16px;">
+            <div style="font-size:14px; font-weight:800; margin-bottom:12px;">Connexion</div>
+            <div class="field"><div class="col"><span class="lbl">Email</span>aicha.dossou@unv.bj</div></div>
+            <div class="field"><div class="col"><span class="lbl">Mot de passe</span>••••••••••</div><svg class="ic sm eye"><use href="#i-eye"/></svg></div>
+            <div style="text-align:right; margin:2px 0 12px;"><span style="font-size:10.5px; color:var(--primary); font-weight:700;">Mot de passe oublié ?</span></div>
+            <div class="btn btn-primary">Se connecter</div>
+          </div>
+          <div style="text-align:center; font-size:10.5px; color:var(--muted); margin-top:14px;">Pas encore de compte ?
+            <span style="color:var(--primary); font-weight:800;"> S'inscrire</span>
+          </div>
+          <div style="display:flex; gap:7px; align-items:center; justify-content:center; margin-top:16px; font-size:9px; color:var(--faint); font-weight:600;">
+            <svg class="ic xs" style="color:var(--primary)"><use href="#i-shield"/></svg>
+            Session chiffrée — JWT — clés en Keystore / Keychain
+          </div>
+        </div>
+      </div></div>
+      <div class="phone-label">Connexion</div>
+    </div>
+
+    <!-- 2. DASHBOARD ETUDIANT -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar">
+          <div style="display:flex; align-items:center; gap:9px;">
+            <div class="logo"><svg class="ic sm"><use href="#i-shield"/></svg></div>
+            <div><div class="ab-title" style="font-size:14px;">ExamSecure</div><div style="font-size:9.5px; color:var(--faint); font-weight:600;">Bonjour Aïcha</div></div>
+          </div>
+          <div class="iconbtn"><svg class="ic sm"><use href="#i-bell"/></svg><span class="dot"></span></div>
+        </div>
+        <div class="content">
+          <div class="search"><svg class="ic sm"><use href="#i-search"/></svg> Rechercher une épreuve, un cours…</div>
+          <div class="chips"><span class="chip on">Toutes</span><span class="chip">Informatique</span><span class="chip">Droit</span><span class="chip">Économie</span><span class="chip">Médecine</span></div>
+          <div class="sec"><h4>Nouvelles épreuves</h4><a>Voir tout</a></div>
+          <div class="hscroll">
+            <div class="hcard">
+              <div class="cover g1"><svg class="ic"><use href="#i-file"/></svg><span class="pg">PDF • 24 p</span></div>
+              <div class="hb"><div class="t">Analyse Mathématique II</div><div class="s">Informatique • Examen</div><div class="price" style="margin-top:5px;">1 500 <small>FCFA</small></div></div>
+            </div>
+            <div class="hcard">
+              <div class="cover g2"><svg class="ic"><use href="#i-file"/></svg><span class="pg">PDF • 36 p</span></div>
+              <div class="hb"><div class="t">Bases de Données — TD corrigés</div><div class="s">Informatique • TD</div><div class="price" style="margin-top:5px;">1 200 <small>FCFA</small></div></div>
+            </div>
+          </div>
+          <div class="card" style="margin-top:12px;">
+            <div style="display:flex; align-items:center; gap:9px;">
+              <div class="thumb g2" style="width:38px; height:38px;"><svg class="ic sm"><use href="#i-book"/></svg></div>
+              <div class="r-main"><div class="r-title">Reprendre la lecture</div><div class="r-sub">Bases de Données — TD corrigés • p. 11/24</div></div>
+              <div class="btn btn-ghost btn-sm">Continuer</div>
+            </div>
+            <div class="prog" style="margin-top:10px;"><i style="width:46%"></i></div>
+          </div>
+          <div class="sec"><h4>Mes derniers achats</h4><a>Tous</a></div>
+          <div class="row" style="margin-bottom:7px;">
+            <div class="thumb g4" style="width:38px; height:38px;"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Microéconomie — Concours blanc</div><div class="r-sub">02/08/2026 • 1 800 FCFA</div></div>
+            <span class="badge b-green">CONSULTABLE</span>
+          </div>
+          <div class="row" style="margin-bottom:0;">
+            <div class="thumb g3" style="width:38px; height:38px;"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Droit Civil I — Examen 2025</div><div class="r-sub">21/07/2026 • 2 000 FCFA</div></div>
+            <span class="badge b-blue">À TÉLÉCHARGER</span>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="n on"><svg class="ic sm"><use href="#i-home"/></svg>Accueil</div>
+          <div class="n"><svg class="ic sm"><use href="#i-book"/></svg>Catalogue</div>
+          <div class="n"><svg class="ic sm"><use href="#i-cart"/></svg>Achats</div>
+          <div class="n"><svg class="ic sm"><use href="#i-bell"/></svg>Alertes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-user"/></svg>Profil</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Dashboard étudiant</div>
+    </div>
+
+    <!-- 3. CATALOGUE -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar">
+          <div><div class="ab-title">Catalogue</div><div class="ab-sub">86 épreuves publiées</div></div>
+          <div class="iconbtn" style="background:var(--primary); border-color:var(--primary); color:#fff;"><svg class="ic sm"><use href="#i-filter"/></svg></div>
+        </div>
+        <div class="content">
+          <div class="search"><svg class="ic sm"><use href="#i-search"/></svg> « analyse » — 12 résultats</div>
+          <div class="chips" style="margin-bottom:12px;">
+            <span class="chip">Filière : Informatique</span>
+            <span class="chip">Année : 2024-2025</span>
+            <span class="chip on">Matière : Toutes</span>
+          </div>
+          <div class="row">
+            <div class="thumb g1"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Analyse Mathématique II</div><div class="r-sub">Examen • 24 pages • 2024-2025</div></div>
+            <div class="r-right"><span class="price">1 500 <small>F</small></span><span class="badge b-green">ACHETÉ</span></div>
+          </div>
+          <div class="row">
+            <div class="thumb g2"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Probabilités &amp; Statistiques</div><div class="r-sub">Examen • 18 pages • 2024-2025</div></div>
+            <div class="r-right"><span class="price">1 300 <small>F</small></span><span class="badge b-blue">NOUVEAU</span></div>
+          </div>
+          <div class="row">
+            <div class="thumb g4"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Réseaux Informatiques — Session</div><div class="r-sub">Examen • 28 pages • 2024-2025</div></div>
+            <div class="r-right"><span class="price">1 600 <small>F</small></span><span class="badge b-gray">PDF</span></div>
+          </div>
+          <div class="row">
+            <div class="thumb g3"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Architecture des Ordinateurs</div><div class="r-sub">TD corrigés • 32 pages • 2024-2025</div></div>
+            <div class="r-right"><span class="price">1 000 <small>F</small></span><span class="badge b-gray">PDF</span></div>
+          </div>
+          <div style="text-align:center; font-size:10.5px; color:var(--faint); font-weight:700; margin-top:12px;">Afficher plus de résultats</div>
+        </div>
+        <div class="nav">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Accueil</div>
+          <div class="n on"><svg class="ic sm"><use href="#i-book"/></svg>Catalogue</div>
+          <div class="n"><svg class="ic sm"><use href="#i-cart"/></svg>Achats</div>
+          <div class="n"><svg class="ic sm"><use href="#i-bell"/></svg>Alertes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-user"/></svg>Profil</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Catalogue — recherche &amp; filtres</div>
+    </div>
+
+    <!-- 4. DETAILS EPAUVE -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar">
+          <div class="iconbtn"><svg class="ic sm"><use href="#i-chev-l"/></svg></div>
+          <div class="ab-title" style="font-size:13.5px;">Détails de l'épreuve</div>
+          <div class="iconbtn" style="visibility:hidden;"></div>
+        </div>
+        <div class="content" style="padding-bottom:2px;">
+          <div class="bigcover g1">
+            <svg class="ic" style="width:34px; height:34px;"><use href="#i-file"/></svg>
+            <span class="pv"><svg class="ic xs"><use href="#i-eye"/></svg> APERÇU SÉCURISÉ</span>
+          </div>
+          <div style="font-size:15px; font-weight:800;">Analyse Mathématique II</div>
+          <div style="font-size:11px; color:var(--faint); margin-top:2px;">Examen • Session 2024-2025</div>
+          <div class="meta" style="margin-top:9px;">
+            <span class="chip on" style="padding:4.5px 10px;">Informatique</span>
+            <span class="chip">Matière : Analyse</span>
+            <span class="chip">24 pages</span>
+            <span class="chip">PDF</span>
+          </div>
+          <div style="font-size:10.5px; color:var(--muted); line-height:1.5;">Examen corrigé couvrant les intégrales, les séries numériques et les équations différentielles du semestre 2.</div>
+          <div class="incl">
+            <div class="li"><div class="icw"><svg class="ic xs"><use href="#i-shield"/></svg></div> Fichier chiffré au téléchargement (AES)</div>
+            <div class="li"><div class="icw"><svg class="ic xs"><use href="#i-zap"/></svg></div> Consultation hors connexion</div>
+            <div class="li"><div class="icw"><svg class="ic xs"><use href="#i-phone"/></svg></div> 1 appareil autorisé à la fois</div>
+            <div class="li"><div class="icw"><svg class="ic xs"><use href="#i-user"/></svg></div> Filigrane personnel intégré</div>
+          </div>
+        </div>
+        <div class="bottombar">
+          <div class="pp">
+            <div><div class="amt">1 500 <small>FCFA</small></div><div style="font-size:9.5px; color:var(--faint); font-weight:600;">Paiement KkiaPay • vérifié par le serveur</div></div>
+            <span class="badge b-blue">PRIX FINAL</span>
+          </div>
+          <div class="btn btn-primary"><svg class="ic sm"><use href="#i-card"/></svg> Acheter maintenant</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Détails de l'épreuve</div>
+    </div>
+
+    <!-- 5. PAIEMENT -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar">
+          <div class="iconbtn"><svg class="ic sm"><use href="#i-chev-l"/></svg></div>
+          <div class="ab-title" style="font-size:13.5px;">Paiement</div>
+          <div class="iconbtn" style="visibility:hidden;"></div>
+        </div>
+        <div class="content">
+          <div class="card" style="margin-bottom:12px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="thumb g1"><svg class="ic sm"><use href="#i-file"/></svg></div>
+              <div class="r-main"><div class="r-title">Analyse Mathématique II</div><div class="r-sub">Examen • 24 pages • 2024-2025</div></div>
+              <div class="price">1 500 <small>FCFA</small></div>
+            </div>
+            <div style="display:flex; justify-content:space-between; border-top:1px dashed var(--border); margin-top:10px; padding-top:9px; font-size:10.5px; color:var(--muted); font-weight:600;">
+              <span>Sous-total</span><span>1 500 FCFA</span>
+            </div>
+          </div>
+          <div style="font-size:10.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:8px;">Moyen de paiement</div>
+          <div class="card" style="border:2px solid var(--primary); margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div style="width:40px; height:40px; border-radius:11px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="ic"><use href="#i-card"/></svg></div>
+              <div class="r-main"><div class="r-title">KkiaPay</div><div class="r-sub">Mobile Money ou carte bancaire</div></div>
+              <div style="width:18px; height:18px; border-radius:50%; border:2px solid var(--primary); background:var(--primary); display:flex; align-items:center; justify-content:center;"><div style="width:7px; height:7px; background:#fff; border-radius:50%;"></div></div>
+            </div>
+          </div>
+          <div class="info">
+            <svg class="ic sm"><use href="#i-shield"/></svg>
+            <span>Le paiement est <b>vérifié directement par le serveur</b> avant tout déblocage de l'épreuve. Aucune confirmation locale n'est acceptée.</span>
+          </div>
+          <div style="font-size:9.5px; color:var(--faint); text-align:center; line-height:1.5; margin-top:12px;">Référence de la transaction transmise après paiement,<br>puis contrôlée par Django auprès de KkiaPay.</div>
+        </div>
+        <div class="bottombar">
+          <div class="btn btn-primary"><svg class="ic sm"><use href="#i-lock"/></svg> Payer 1 500 FCFA</div>
+          <div class="note">En payant, vous acceptez les conditions d'utilisation.</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Paiement KkiaPay</div>
+    </div>
+
+    <!-- 6. LECTEUR SECURISE -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen reader">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:transparent;"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="rbar">
+          <div class="rback"><svg class="ic sm"><use href="#i-chev-l"/></svg></div>
+          <div class="t">Analyse Mathématique II</div>
+          <div class="offpill"><span class="d"></span> HORS LIGNE</div>
+        </div>
+        <div class="sheet">
+          <div class="tl head"></div>
+          <div class="tl w92"></div><div class="tl w88"></div><div class="tl w80"></div>
+          <div style="height:14px;"></div>
+          <div class="tl w88"></div><div class="tl w92"></div><div class="tl w74"></div>
+          <div class="wm" style="top:22%; left:4%;">Aïcha D. • ETU-2031 • 01/09/2026</div>
+          <div class="wm" style="top:48%; left:34%;">Aïcha D. • ETU-2031 • 01/09/2026</div>
+          <div class="wm" style="top:74%; left:8%;">Aïcha D. • ETU-2031 • 01/09/2026</div>
+          <div class="wm" style="top:92%; left:42%;">Aïcha D. • ETU-2031 • 01/09/2026</div>
+        </div>
+        <div class="rfoot">
+          <div class="pgbtn"><svg class="ic sm"><use href="#i-chev-l"/></svg></div>
+          <div class="pgpill">Page 3 / 24</div>
+          <div class="pgbtn"><svg class="ic sm"><use href="#i-chev-r"/></svg></div>
+          <div class="prot"><svg class="ic sm"><use href="#i-shield"/></svg> Protections actives</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Lecteur sécurisé (hors ligne + filigrane)</div>
+    </div>
+
+    <!-- 7. MES ACHATS -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar"><div class="ab-title">Mes achats</div><div class="ab-sub" style="align-self:center;">5 épreuves</div><div class="iconbtn" style="visibility:hidden;"></div></div>
+        <div class="content">
+          <div class="chips" style="margin-bottom:12px;">
+            <span class="chip on">Tous</span><span class="chip">Téléchargés (2)</span><span class="chip">À télécharger (3)</span>
+          </div>
+          <div class="card" style="margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="thumb g2"><svg class="ic sm"><use href="#i-file"/></svg></div>
+              <div class="r-main"><div class="r-title">Bases de Données — TD corrigés</div><div class="r-sub">Acheté le 28/08/2026 • 1 200 FCFA</div></div>
+              <span class="badge b-green">SUR CET APPAREIL</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <div class="btn btn-primary btn-sm" style="flex:1;">Consulter</div>
+              <div class="btn btn-ghost btn-sm"><svg class="ic xs"><use href="#i-eye"/></svg> Détails</div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:10px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="thumb g1"><svg class="ic sm"><use href="#i-file"/></svg></div>
+              <div class="r-main"><div class="r-title">Analyse Mathématique II</div><div class="r-sub">Acheté le 01/09/2026 • 1 500 FCFA</div></div>
+              <span class="badge b-blue">DISPONIBLE</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <div class="btn btn-primary btn-sm" style="flex:1;"><svg class="ic xs"><use href="#i-download"/></svg> Télécharger (chiffré)</div>
+            </div>
+          </div>
+          <div class="card">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="thumb g3"><svg class="ic sm"><use href="#i-file"/></svg></div>
+              <div class="r-main"><div class="r-title">Microéconomie — Concours blanc</div><div class="r-sub">Téléchargée sur un ancien appareil</div></div>
+              <span class="badge b-amber">DÉBLOCAGE REQUIS</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <div class="btn btn-sm" style="flex:1; background:var(--warning-soft); color:var(--warning); border:1.5px solid #FFD8A8;"><svg class="ic xs"><use href="#i-send"/></svg> Demander un déblocage</div>
+            </div>
+          </div>
+        </div>
+        <div class="nav">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Accueil</div>
+          <div class="n"><svg class="ic sm"><use href="#i-book"/></svg>Catalogue</div>
+          <div class="n on"><svg class="ic sm"><use href="#i-cart"/></svg>Achats</div>
+          <div class="n"><svg class="ic sm"><use href="#i-bell"/></svg>Alertes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-user"/></svg>Profil</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Mes achats</div>
+    </div>
+
+    <!-- 8. DEMANDE DEBLOCAGE -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar">
+          <div class="iconbtn"><svg class="ic sm"><use href="#i-chev-l"/></svg></div>
+          <div class="ab-title" style="font-size:13.5px;">Demande de déblocage</div>
+          <div class="iconbtn" style="visibility:hidden;"></div>
+        </div>
+        <div class="content">
+          <div class="info amber" style="margin-bottom:13px;">
+            <svg class="ic sm"><use href="#i-phone"/></svg>
+            <span>Nouveau téléphone ou réinstallation ? Demandez le transfert de votre achat sur <b>cet appareil</b>. Un administrateur examine chaque demande.</span>
+          </div>
+          <div class="field"><svg class="ic sm" style="color:var(--primary)"><use href="#i-file"/></svg><div class="col"><span class="lbl">Épreuve concernée</span>Microéconomie — Concours blanc</div></div>
+          <div class="field"><svg class="ic sm" style="color:var(--primary)"><use href="#i-phone"/></svg><div class="col"><span class="lbl">Appareil actuel</span>Pixel 8 — ID 7F3A-9C21</div></div>
+          <div class="field" style="margin-bottom:11px;"><div class="col" style="display:block;"><span class="lbl">Motif de la demande</span><textarea placeholder="Nouvel appareil acquis en septembre, l'ancien est perdu…"></textarea></div></div>
+          <div class="btn btn-primary"><svg class="ic sm"><use href="#i-send"/></svg> Envoyer la demande</div>
+          <div class="sec"><h4>Historique des demandes</h4></div>
+          <div class="row" style="margin-bottom:7px;">
+            <div class="thumb g2" style="width:38px; height:38px;"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Bases de Données — TD</div><div class="r-sub">Envoyée le 22/08/2026 • traitée le 22/08/2026</div></div>
+            <span class="badge b-green">APPROUVÉE</span>
+          </div>
+          <div class="row">
+            <div class="thumb g3" style="width:38px; height:38px;"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Microéconomie — Concours</div><div class="r-sub">Envoyée le 01/09/2026 • en cours d'examen</div></div>
+            <span class="badge b-amber">EN ATTENTE</span>
+          </div>
+        </div>
+      </div></div>
+      <div class="phone-label">Demande de déblocage</div>
+    </div>
+
+    <!-- 9. PROFIL -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="appbar"><div class="ab-title">Profil</div><div class="iconbtn" style="visibility:hidden;"></div></div>
+        <div class="content">
+          <div class="card" style="display:flex; align-items:center; gap:12px; margin-bottom:11px; padding:14px;">
+            <div class="avatar" style="width:52px; height:52px; font-size:16px;">AD</div>
+            <div class="r-main">
+              <div class="r-title" style="font-size:13.5px;">Aïcha Dossou</div>
+              <div class="r-sub">aicha.dossou@unv.bj</div>
+              <div style="display:flex; gap:6px; margin-top:6px;"><span class="badge b-blue">ÉTUDIANTE</span><span class="badge b-gray">INFORMATIQUE</span></div>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:0; padding:2px 12px;">
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid #F0F3F9;">
+              <div class="icw" style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="ic xs"><use href="#i-phone"/></svg></div>
+              <div class="r-main"><div class="r-title" style="font-size:11.5px;">Mon appareil</div><div class="r-sub">Pixel 8 — Actif (ID 7F3A-9C21)</div></div>
+              <svg class="ic xs" style="color:var(--faint)"><use href="#i-chev-r"/></svg>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid #F0F3F9;">
+              <div class="icw" style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="ic xs"><use href="#i-bell"/></svg></div>
+              <div class="r-main"><div class="r-title" style="font-size:11.5px;">Notifications</div><div class="r-sub">Paiements, déblocages, nouvelles épreuves</div></div>
+              <div style="width:34px; height:20px; border-radius:999px; background:var(--success); position:relative; flex-shrink:0;"><div style="position:absolute; width:16px; height:16px; background:#fff; border-radius:50%; top:2px; right:2px;"></div></div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 0; border-bottom:1px solid #F0F3F9;">
+              <div class="icw" style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="ic xs"><use href="#i-key"/></svg></div>
+              <div class="r-main"><div class="r-title" style="font-size:11.5px;">Sécurité locale</div><div class="r-sub">Clés AES — Android Keystore / iOS Keychain</div></div>
+              <svg class="ic xs" style="color:var(--faint)"><use href="#i-chev-r"/></svg>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px; padding:11px 0;">
+              <div class="icw" style="width:30px; height:30px; border-radius:9px; background:var(--primary-soft); color:var(--primary); display:flex; align-items:center; justify-content:center; flex-shrink:0;"><svg class="ic xs"><use href="#i-sliders"/></svg></div>
+              <div class="r-main"><div class="r-title" style="font-size:11.5px;">Paramètres</div><div class="r-sub">Langue, notifications, confidentialité</div></div>
+              <svg class="ic xs" style="color:var(--faint)"><use href="#i-chev-r"/></svg>
+            </div>
+          </div>
+          <div class="btn btn-danger-o" style="margin-top:12px;"><svg class="ic sm"><use href="#i-logout"/></svg> Se déconnecter</div>
+        </div>
+        <div class="nav">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Accueil</div>
+          <div class="n"><svg class="ic sm"><use href="#i-book"/></svg>Catalogue</div>
+          <div class="n"><svg class="ic sm"><use href="#i-cart"/></svg>Achats</div>
+          <div class="n"><svg class="ic sm"><use href="#i-bell"/></svg>Alertes<span class="dot"></span></div>
+          <div class="n on"><svg class="ic sm"><use href="#i-user"/></svg>Profil</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Profil &amp; sécurité</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== ESPACE ADMIN ==================== -->
+<section class="block">
+  <h2><span class="tag tag-adm">ESPACE ADMINISTRATEUR</span> Gestion mobile de la plateforme</h2>
+  <div class="b-sub">Même application Flutter, rôle ADMIN détecté après authentification. Interface de gestion compacte pour petits écrans.</div>
+  <div class="phones">
+
+    <!-- 10. ADMIN DASHBOARD -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top">
+          <div class="at">
+            <div><h3>Tableau de bord</h3><div style="font-size:9.5px; color:#8FA3C8; margin-top:2px; font-weight:600;">Espace administrateur</div></div>
+            <div class="iconbtn" style="background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.2); color:#fff;"><svg class="ic sm"><use href="#i-bell"/></svg><span class="dot"></span></div>
+          </div>
+        </div>
+        <div class="content">
+          <div class="stats">
+            <div class="stat"><div class="lbl"><svg class="ic xs"><use href="#i-wallet"/></svg> Chiffre d'affaires</div><div class="val">1 240 500 <small style="font-size:10px;">F</small></div><div class="delta">+12,4 % ce mois</div></div>
+            <div class="stat"><div class="lbl"><svg class="ic xs"><use href="#i-users"/></svg> Étudiants</div><div class="val">1 284</div><div class="delta">+38 ce mois</div></div>
+            <div class="stat"><div class="lbl"><svg class="ic xs"><use href="#i-file"/></svg> Épreuves</div><div class="val">96</div><div class="delta mut">12 en brouillon</div></div>
+            <div class="stat"><div class="lbl"><svg class="ic xs"><use href="#i-cart"/></svg> Achats (30 j)</div><div class="val">342</div><div class="delta">+9,1 %</div></div>
+          </div>
+          <div class="card" style="margin-top:9px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;"><b style="font-size:11.5px;">Revenus — 7 derniers jours</b><span class="badge b-blue">FCFA</span></div>
+            <div class="chart"><i style="height:38%"></i><i style="height:55%"></i><i style="height:47%"></i><i style="height:72%"></i><i style="height:60%"></i><i style="height:94%"></i><i style="height:78%"></i></div>
+            <div class="chart-lbls"><span>L</span><span>M</span><span>M</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+          </div>
+          <div class="alertc">
+            <div class="aw"><svg class="ic sm"><use href="#i-alert"/></svg></div>
+            <div class="am"><b>3 demandes de déblocage en attente</b><span>Anciens appareils / réinstallations</span></div>
+            <div class="btn btn-adm btn-sm">Gérer</div>
+          </div>
+          <div class="sec"><h4>Ventes récentes</h4><a>Tout</a></div>
+          <div class="row" style="margin-bottom:7px;">
+            <div class="avatar adm">AD</div>
+            <div class="r-main"><div class="r-title">Aïcha Dossou</div><div class="r-sub">Analyse Math. II • KKP-8F2A91</div></div>
+            <div class="r-right"><span class="price">1 500 <small>F</small></span><span class="badge b-green">SUCCÈS</span></div>
+          </div>
+          <div class="row" style="margin-bottom:0;">
+            <div class="avatar adm">KB</div>
+            <div class="r-main"><div class="r-title">Koffi Bawo</div><div class="r-sub">Droit Civil I • KKP-7C11B2</div></div>
+            <div class="r-right"><span class="price">2 000 <small>F</small></span><span class="badge b-red">ÉCHEC</span></div>
+          </div>
+        </div>
+        <div class="nav adm">
+          <div class="n on"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Dashboard administrateur</div>
+    </div>
+
+    <!-- 11. GESTION EPAUVES -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top"><div class="at"><div><h3>Gestion des épreuves</h3></div><div class="plus"><svg class="ic sm"><use href="#i-plus"/></svg></div></div></div>
+        <div class="content">
+          <div class="search"><svg class="ic sm"><use href="#i-search"/></svg> Rechercher une épreuve…</div>
+          <div class="chips" style="margin-bottom:11px;">
+            <span class="chip">Statut : Toutes</span><span class="chip">Filière : Toutes</span><span class="chip">Année : 2024-2025</span>
+          </div>
+          <div class="row">
+            <div class="thumb g1"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Analyse Mathématique II</div><div class="r-sub">Informatique • 24 p • 1 500 F</div></div>
+            <div class="r-right"><span class="badge b-green">PUBLIÉE</span><span style="font-size:9px; color:var(--faint); font-weight:700;">128 téléchargements</span></div>
+          </div>
+          <div class="row">
+            <div class="thumb g2"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Droit Civil I — Examen</div><div class="r-sub">Droit • 32 p • 2 000 F</div></div>
+            <div class="r-right"><span class="badge b-green">PUBLIÉE</span><span style="font-size:9px; color:var(--faint); font-weight:700;">96 téléchargements</span></div>
+          </div>
+          <div class="row">
+            <div class="thumb g3"><svg class="ic sm"><use href="#i-file"/></svg></div>
+            <div class="r-main"><div class="r-title">Microéconomie — Concours</div><div class="r-sub">Économie • 32 p • 1 800 F</div></div>
+            <div class="r-right"><span class="badge b-gray">BROUILLON</span><span style="font-size:9px; color:var(--faint); font-weight:700;">0 téléchargement</span></div>
+          </div>
+          <div class="card" style="margin-bottom:9px;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="thumb g4"><svg class="ic sm"><use href="#i-file"/></svg></div>
+              <div class="r-main"><div class="r-title">Réseaux Informatiques</div><div class="r-sub">Informatique • 28 p • 1 600 F</div></div>
+              <span class="badge b-green">PUBLIÉE</span>
+            </div>
+            <div style="display:flex; gap:8px; margin-top:10px;">
+              <div class="btn btn-adm btn-sm" style="flex:1;"><svg class="ic xs"><use href="#i-edit"/></svg> Modifier</div>
+              <div class="btn btn-sm" style="flex:1; background:#EEF1F6; color:#41506A;"><svg class="ic xs"><use href="#i-archive"/></svg> Archiver</div>
+              <div class="btn btn-danger-o btn-sm"><svg class="ic xs"><use href="#i-trash"/></svg></div>
+            </div>
+          </div>
+        </div>
+        <div class="nav adm">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n on"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Gestion des épreuves (PDF privés)</div>
+    </div>
+
+    <!-- 12. UTILISATEURS -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top"><div class="at"><div><h3>Utilisateurs</h3><div style="font-size:9.5px; color:#8FA3C8; margin-top:2px; font-weight:600;">1 284 comptes • 3 pages</div></div></div></div>
+        <div class="content">
+          <div class="search"><svg class="ic sm"><use href="#i-search"/></svg> Nom, email, téléphone…</div>
+          <div class="chips" style="margin-bottom:11px;"><span class="chip dark">Statut : Tous</span><span class="chip">Filière : Toutes</span></div>
+          <div class="row">
+            <div class="avatar adm">AD</div>
+            <div class="r-main"><div class="r-title">Aïcha Dossou</div><div class="r-sub">Informatique • 12 achats • inscrite le 03/02/2026</div></div>
+            <span class="badge b-green">ACTIF</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">KB</div>
+            <div class="r-main"><div class="r-title">Koffi Bawo</div><div class="r-sub">Droit • 5 achats • inscrit le 17/05/2026</div></div>
+            <span class="badge b-green">ACTIF</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">LM</div>
+            <div class="r-main"><div class="r-title">Lucie Mensah</div><div class="r-sub">Économie • 0 achat • inscrite le 22/06/2026</div></div>
+            <span class="badge b-red">SUSPENDU</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">ST</div>
+            <div class="r-main"><div class="r-title">Seydou Tossou</div><div class="r-sub">Médecine • 8 achats • inscrit le 09/08/2026</div></div>
+            <span class="badge b-green">ACTIF</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">RF</div>
+            <div class="r-main"><div class="r-title">Rafique Soglo</div><div class="r-sub">Sciences • 3 achats • inscrit le 30/08/2026</div></div>
+            <span class="badge b-green">ACTIF</span>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:13px; font-size:10px; color:var(--faint); font-weight:700;">
+            <span>Page 1 / 32</span>
+            <div style="display:flex; gap:7px;"><span class="btn btn-sm" style="background:#fff; border:1px solid var(--border); color:#41506A;">Précédent</span><span class="btn btn-adm btn-sm">Suivant</span></div>
+          </div>
+        </div>
+        <div class="nav adm">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n on"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Gestion des utilisateurs</div>
+    </div>
+
+    <!-- 13. TRANSACTIONS -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top"><div class="at"><div><h3>Transactions KkiaPay</h3><div style="font-size:9.5px; color:#8FA3C8; margin-top:2px; font-weight:600;">Chaque paiement est vérifié par le serveur</div></div></div></div>
+        <div class="content">
+          <div class="chips" style="margin-bottom:11px;">
+            <span class="chip dark">Toutes</span><span class="chip">Succès</span><span class="chip">Échec</span><span class="chip">En attente</span>
+          </div>
+          <div class="card" style="margin-bottom:9px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><div class="r-title" style="font-size:12px;">Aïcha Dossou</div><div class="r-sub">Analyse Math. II • Mobile Money</div></div>
+              <div style="text-align:right;"><span class="price">1 500 <small>F</small></span><div><span class="badge b-green">SUCCÈS</span></div></div>
+            </div>
+            <div style="border-top:1px dashed var(--border); margin-top:9px; padding-top:8px; font-size:9.5px; color:var(--faint); font-weight:600; display:flex; justify-content:space-between;">
+              <span>Réf. KKP-8F2A91</span><span>01/09/2026 • 14:32</span>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:9px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><div class="r-title" style="font-size:12px;">Koffi Bawo</div><div class="r-sub">Droit Civil I • Mobile Money</div></div>
+              <div style="text-align:right;"><span class="price">2 000 <small>F</small></span><div><span class="badge b-red">ÉCHEC</span></div></div>
+            </div>
+            <div style="border-top:1px dashed var(--border); margin-top:9px; padding-top:8px; font-size:9.5px; color:var(--faint); font-weight:600; display:flex; justify-content:space-between;">
+              <span>Réf. KKP-7C11B2</span><span>01/09/2026 • 11:05</span>
+            </div>
+          </div>
+          <div class="card" style="margin-bottom:9px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <div><div class="r-title" style="font-size:12px;">Seydou Tossou</div><div class="r-sub">Réseaux • Carte bancaire</div></div>
+              <div style="text-align:right;"><span class="price">1 500 <small>F</small></span><div><span class="badge b-amber">EN ATTENTE</span></div></div>
+            </div>
+            <div style="border-top:1px dashed var(--border); margin-top:9px; padding-top:8px; font-size:9.5px; color:var(--faint); font-weight:600; display:flex; justify-content:space-between;">
+              <span>Réf. KKP-5E90D3</span><span>01/09/2026 • 09:48</span>
+            </div>
+          </div>
+          <div class="info" style="margin-bottom:0;">
+            <svg class="ic sm"><use href="#i-refresh"/></svg>
+            <span><b>Idempotence :</b> une même référence KkiaPay ne crée jamais deux achats, même en cas de double appel.</span>
+          </div>
+        </div>
+        <div class="nav adm">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n on"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Transactions &amp; idempotence</div>
+    </div>
+
+    <!-- 14. DEMANDES ADMIN -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top"><div class="at"><div><h3>Demandes de déblocage</h3><div style="font-size:9.5px; color:#8FA3C8; margin-top:2px; font-weight:600;">3 en attente • 27 traitées ce mois</div></div></div></div>
+        <div class="content">
+          <div class="card" style="margin-bottom:10px; border:1.5px solid #FFD8A8;">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <div class="avatar adm">AD</div>
+              <div class="r-main"><div class="r-title">Aïcha Dossou</div><div class="r-sub">Étudiante • Informatique • demande #45</div></div>
+              <span class="badge b-amber">EN ATTENTE</span>
+            </div>
+            <div style="background:var(--bg); border-radius:10px; padding:10px; margin-top:10px; font-size:10.5px; line-height:1.6; color:#41506A;">
+              <b>Épreuve :</b> Microéconomie — Concours blanc<br>
+              <b>Achat :</b> n° A-1092 • 1 téléchargement effectué<br>
+              <b>Appareil demandé :</b> Pixel 8 (ID 7F3A-9C21)<br>
+              <b>Motif :</b> « Changement de téléphone »
+            </div>
+            <div style="display:flex; gap:8px; margin-top:11px;">
+              <div class="btn btn-primary btn-sm" style="flex:1;"><svg class="ic xs"><use href="#i-check"/></svg> Approuver</div>
+              <div class="btn btn-danger-o btn-sm" style="flex:1;"><svg class="ic xs"><use href="#i-x"/></svg> Refuser</div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="avatar adm">ST</div>
+            <div class="r-main"><div class="r-title">Seydou Tossou</div><div class="r-sub">Demande #44 • Réseaux — appareil perdu</div></div>
+            <span class="badge b-amber">EN ATTENTE</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">RF</div>
+            <div class="r-main"><div class="r-title">Rafique Soglo</div><div class="r-sub">Demande #43 • traitée le 30/08/2026</div></div>
+            <span class="badge b-green">APPROUVÉE</span>
+          </div>
+          <div class="row">
+            <div class="avatar adm">LM</div>
+            <div class="r-main"><div class="r-title">Lucie Mensah</div><div class="r-sub">Demande #42 • traitée le 28/08/2026</div></div>
+            <span class="badge b-red">REFUSÉE</span>
+          </div>
+          <div class="info" style="margin-top:11px; margin-bottom:0;">
+            <svg class="ic sm"><use href="#i-shield"/></svg>
+            <span>L'approbation crée <b>explicitement</b> le nouvel accès (token de téléchargement) côté Django et est <b>tracée dans l'audit</b>.</span>
+          </div>
+        </div>
+        <div class="nav adm">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n on"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Traitement des déblocages</div>
+    </div>
+
+    <!-- 15. AUDIT -->
+    <div class="phone-wrap">
+      <div class="phone"><div class="screen">
+        <div class="notch"></div>
+        <div class="statusbar dark" style="background:var(--navy);"><span>09:41</span><div class="sb-right"><div class="sb-signal"><i></i><i></i><i></i><i></i></div><div class="sb-battery"></div></div></div>
+        <div class="adm-top"><div class="at"><div><h3>Journal d'audit</h3><div style="font-size:9.5px; color:#8FA3C8; margin-top:2px; font-weight:600;">Actions sensibles tracées</div></div></div></div>
+        <div class="content">
+          <div class="chips" style="margin-bottom:11px;"><span class="chip dark">Type : Tous</span><span class="chip">Utilisateur : Tous</span><span class="chip">7 jours</span></div>
+          <div class="row">
+            <div class="thumb" style="background:var(--primary-soft); color:var(--primary);"><svg class="ic sm"><use href="#i-lock"/></svg></div>
+            <div class="r-main"><div class="r-title">Connexion administrateur</div><div class="r-sub">R. Sagbo • 01/09/2026 à 08:12</div></div>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:var(--success-soft); color:var(--success);"><svg class="ic sm"><use href="#i-card"/></svg></div>
+            <div class="r-main"><div class="r-title">Paiement vérifié</div><div class="r-sub">KKP-8F2A91 • 1 500 F • confirmé auprès de KkiaPay</div></div>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:var(--warning-soft); color:var(--warning);"><svg class="ic sm"><use href="#i-edit"/></svg></div>
+            <div class="r-main"><div class="r-title">Épreuve modifiée</div><div class="r-sub">Analyse II — prix 1 800 F → 1 500 F</div></div>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:var(--success-soft); color:var(--success);"><svg class="ic sm"><use href="#i-check"/></svg></div>
+            <div class="r-main"><div class="r-title">Demande #45 approuvée</div><div class="r-sub">A. Dossou — Pixel 8 • nouvel accès créé</div></div>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:var(--danger-soft); color:var(--danger);"><svg class="ic sm"><use href="#i-users"/></svg></div>
+            <div class="r-main"><div class="r-title">Compte suspendu</div><div class="r-sub">L. Mensah • motif : comportement frauduleux</div></div>
+          </div>
+          <div class="row">
+            <div class="thumb" style="background:var(--primary-soft); color:var(--primary);"><svg class="ic sm"><use href="#i-download"/></svg></div>
+            <div class="r-main"><div class="r-title">Téléchargement autorisé</div><div class="r-sub">Achat A-1092 • token consommé • 1/1</div></div>
+          </div>
+          <div style="text-align:center; font-size:10px; color:var(--faint); font-weight:700; margin-top:11px;">Afficher les pages précédentes</div>
+        </div>
+        <div class="nav adm">
+          <div class="n"><svg class="ic sm"><use href="#i-home"/></svg>Tableau</div>
+          <div class="n"><svg class="ic sm"><use href="#i-file"/></svg>Épreuves</div>
+          <div class="n"><svg class="ic sm"><use href="#i-users"/></svg>Utilisateurs</div>
+          <div class="n"><svg class="ic sm"><use href="#i-alert"/></svg>Demandes<span class="dot"></span></div>
+          <div class="n on"><svg class="ic sm"><use href="#i-chart"/></svg>Stats</div>
+        </div>
+      </div></div>
+      <div class="phone-label">Journal d'audit</div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ==================== FLUX ==================== -->
+<section class="block">
+  <h2>Flux techniques clés (visualisés dans les écrans)</h2>
+  <div class="b-sub">Django REST API = autorité finale. Flutter n'est jamais la source de vérité pour un paiement, un accès ou un rôle.</div>
+  <div class="phones">
+    <div class="flowbox">
+      <h4><span class="fi g1"><svg class="ic sm"><use href="#i-card"/></svg></span> Flux d'achat KkiaPay</h4>
+      <div class="fstep">Étudiant choisit une épreuve</div><div class="farrow">↓</div>
+      <div class="fstep">Initiation KkiaPay (POST /payments/initiate)</div><div class="farrow">↓</div>
+      <div class="fstep">Paiement Mobile Money / CB → référence</div><div class="farrow">↓</div>
+      <div class="fstep">Flutter envoie la référence (POST /payments/verify)</div><div class="farrow">↓</div>
+      <div class="fstep">Django vérifie auprès de KkiaPay (montant, devise, épreuve, utilisateur)</div><div class="farrow">↓</div>
+      <div class="fstep">Transaction SUCCESS + idempotence (aucun doublon)</div><div class="farrow">↓</div>
+      <div class="fstep">Achat créé → accès autorisé + notification</div>
+    </div>
+    <div class="flowbox">
+      <h4><span class="fi g2"><svg class="ic sm"><use href="#i-download"/></svg></span> Téléchargement sécurisé</h4>
+      <div class="fstep">Achat validé (1 appareil, 1 téléchargement)</div><div class="farrow">↓</div>
+      <div class="fstep">Django génère un DownloadToken temporaire (hashé, expirable, révocable)</div><div class="farrow">↓</div>
+      <div class="fstep">Téléchargement contrôlé (auth + achat + appareil + token)</div><div class="farrow">↓</div>
+      <div class="fstep">PDF jamais exposé publiquement</div><div class="farrow">↓</div>
+      <div class="fstep">Chiffrement local AES (clé en Keystore / Keychain)</div><div class="farrow">↓</div>
+      <div class="fstep">Stockage privé + lecteur intégré hors ligne</div>
+    </div>
+    <div class="flowbox">
+      <h4><span class="fi g3"><svg class="ic sm"><use href="#i-phone"/></svg></span> Déblocage d'appareil</h4>
+      <div class="fstep">Changement de téléphone / perte / réinstallation</div><div class="farrow">↓</div>
+      <div class="fstep">Étudiant : demande + motif (POST /unlock-requests)</div><div class="farrow">↓</div>
+      <div class="fstep">Admin : analyse achat, appareil, historique, motif</div><div class="farrow">↓</div>
+      <div class="fstep">Approuver / Refuser + réponse à l'étudiant</div><div class="farrow">↓</div>
+      <div class="fstep">Notification envoyée (approuvée / refusée)</div><div class="farrow">↓</div>
+      <div class="fstep">Si APPROVED : nouvel accès créé explicitement + audit</div>
+    </div>
+  </div>
+</section>
+
+<div class="foot">
+  Maquettes de conception — v1 • ExamSecure (nom provisoire)<br>
+  Écrans non représentés ici mais prévus : Onboarding, Mot de passe oublié, Résultat de paiement, Achats (admin), Achats (détails), Filtres filières/matières (CRUD admin), Statistiques avancées, Paramètres détaillés, écran d'erreur / vide / squelette (skeleton).
+</div>
+
+</body>
+</html>

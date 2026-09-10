@@ -1,0 +1,29 @@
+# Python / Django
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.sqlite3
+staticfiles/
+backend/.env
+backend/media_private/*
+!backend/media_private/.gitkeep
+
+# Flutter
+mobile/.dart_tool/
+mobile/build/
+mobile/.gradle/
+mobile/android/.gradle/
+mobile/android/app/build/
+mobile/ios/Pods/
+mobile/ios/.symlinks/
+mobile/*.iml
+mobile/.idea/
+
+# General
+.vscode/
+.pytest_cache/
+backend/.coverage
+backend/media/
+mobile/android/build/
+mobile/android/app/build/

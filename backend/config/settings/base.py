@@ -109,10 +109,10 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 
 # Media publics / semi-publics (reçus de paiement, photos de couverture, etc.)
 MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
+MEDIA_ROOT = BASE_DIR / "storage" / "media"
 
 # Stockage privé des documents (jamais servi directement par une URL publique)
-PRIVATE_MEDIA_ROOT = BASE_DIR / "media_private"
+PRIVATE_MEDIA_ROOT = BASE_DIR / "storage" / "media_private"
 
 # Gestion de la taille des fichiers (Uploads jusqu'à 100 Mo)
 DATA_UPLOAD_MAX_MEMORY_SIZE = int(os.getenv("DATA_UPLOAD_MAX_MEMORY_SIZE", 104857600))  # 100 Mo

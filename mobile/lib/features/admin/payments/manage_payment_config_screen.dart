@@ -13,7 +13,9 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
   final _adminRepo = AdminRepository();
   final _formKey = GlobalKey<FormState>();
 
-  late TextEditingController _numberController;
+  late TextEditingController _moovController;
+  late TextEditingController _mtnController;
+  late TextEditingController _celtisController;
   late TextEditingController _beneficiaryController;
   late TextEditingController _instructionsController;
 
@@ -23,7 +25,9 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
   @override
   void initState() {
     super.initState();
-    _numberController = TextEditingController();
+    _moovController = TextEditingController();
+    _mtnController = TextEditingController();
+    _celtisController = TextEditingController();
     _beneficiaryController = TextEditingController();
     _instructionsController = TextEditingController();
     _load();
@@ -31,7 +35,9 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
 
   @override
   void dispose() {
-    _numberController.dispose();
+    _moovController.dispose();
+    _mtnController.dispose();
+    _celtisController.dispose();
     _beneficiaryController.dispose();
     _instructionsController.dispose();
     super.dispose();
@@ -43,7 +49,9 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
       final config = await _adminRepo.fetchPaymentConfig();
       if (mounted) {
         setState(() {
-          _numberController.text = config.momoNumber;
+          _moovController.text = config.numeroMoov;
+          _mtnController.text = config.numeroMtn;
+          _celtisController.text = config.numeroCeltis;
           _beneficiaryController.text = config.beneficiaryName;
           _instructionsController.text = config.instructions;
           _loading = false;
@@ -64,7 +72,9 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
     setState(() => _saving = true);
     try {
       await _adminRepo.updatePaymentConfig({
-        'momo_number': _numberController.text.trim(),
+        'numero_moov': _moovController.text.trim(),
+        'numero_mtn': _mtnController.text.trim(),
+        'numero_celtis': _celtisController.text.trim(),
         'beneficiary_name': _beneficiaryController.text.trim(),
         'instructions': _instructionsController.text.trim(),
       });
@@ -130,17 +140,44 @@ class _ManagePaymentConfigScreenState extends State<ManagePaymentConfigScreen> {
                       const SizedBox(height: 18),
 
                       const Text(
-                        'Numéro Mobile Money de réception *',
+                        'Numéro Moov de réception',
                         style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
                       ),
                       const SizedBox(height: 6),
                       TextFormField(
-                        controller: _numberController,
+                        controller: _moovController,
+                        decoration: const InputDecoration(
+                          hintText: 'Ex: +229 95 00 00 00',
+                          prefixIcon: Icon(Icons.phone_android_outlined, size: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'Numéro MTN de réception',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _mtnController,
                         decoration: const InputDecoration(
                           hintText: 'Ex: +229 97 00 00 00',
                           prefixIcon: Icon(Icons.phone_android_outlined, size: 18),
                         ),
-                        validator: (v) => (v == null || v.trim().isEmpty) ? 'Numéro requis' : null,
+                      ),
+                      const SizedBox(height: 16),
+
+                      const Text(
+                        'Numéro Celtis de réception',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
+                      ),
+                      const SizedBox(height: 6),
+                      TextFormField(
+                        controller: _celtisController,
+                        decoration: const InputDecoration(
+                          hintText: 'Ex: +229 40 00 00 00',
+                          prefixIcon: Icon(Icons.phone_android_outlined, size: 18),
+                        ),
                       ),
                       const SizedBox(height: 16),
 

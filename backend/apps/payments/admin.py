@@ -4,7 +4,7 @@ from .models import Transaction, PaymentConfig
 
 @admin.register(PaymentConfig)
 class PaymentConfigAdmin(admin.ModelAdmin):
-    list_display = ("momo_number", "beneficiary_name", "is_active", "updated_at")
+    list_display = ("numero_moov", "numero_mtn", "numero_celtis", "beneficiary_name", "is_active", "updated_at")
 
 
 @admin.register(Transaction)

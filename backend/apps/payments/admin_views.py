@@ -43,7 +43,7 @@ class AdminPaymentConfigView(APIView):
             "PAYMENT_CONFIG_UPDATED",
             "PaymentConfig",
             updated_config.id,
-            f"Nouveau numéro MoMo: {updated_config.momo_number} · Bénéficiaire: {updated_config.beneficiary_name}"
+            f"Numéros: Moov={updated_config.numero_moov}, MTN={updated_config.numero_mtn}, Celtis={updated_config.numero_celtis} · Bénéficiaire: {updated_config.beneficiary_name}"
         )
         return Response(PaymentConfigSerializer(updated_config).data)
 

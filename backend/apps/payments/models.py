@@ -9,10 +9,23 @@ class PaymentConfig(models.Model):
     Configuration dynamique du paiement manuel Mobile Money.
     Modifiable par l'administrateur depuis le dashboard et récupérée par l'app Flutter.
     """
-    momo_number = models.CharField(
+    numero_moov = models.CharField(
         max_length=50,
-        default="+229 97 00 00 00",
-        help_text="Numéro Mobile Money de réception des paiements (ex: +229 97 00 00 00)"
+        default="",
+        blank=True,
+        help_text="Numéro Moov de réception des paiements"
+    )
+    numero_mtn = models.CharField(
+        max_length=50,
+        default="",
+        blank=True,
+        help_text="Numéro MTN de réception des paiements"
+    )
+    numero_celtis = models.CharField(
+        max_length=50,
+        default="",
+        blank=True,
+        help_text="Numéro Celtis de réception des paiements"
     )
     beneficiary_name = models.CharField(
         max_length=150,
@@ -21,7 +34,7 @@ class PaymentConfig(models.Model):
     )
     instructions = models.TextField(
         default=(
-            "Pour accéder à ce document, veuillez envoyer le montant indiqué au numéro "
+            "Pour accéder à ce document, veuillez envoyer le montant indiqué au(x) numéro(s) "
             "Mobile Money de l'administration. Après le paiement, revenez dans l'application "
             "et envoyez votre reçu (capture d'écran ou PDF) pour vérification."
         ),
@@ -35,7 +48,7 @@ class PaymentConfig(models.Model):
         verbose_name_plural = "Configurations Paiement Mobile Money"
 
     def __str__(self):
-        return f"Config Momo : {self.momo_number} ({self.beneficiary_name})"
+        return f"Config Momo : Moov={self.numero_moov}, MTN={self.numero_mtn}, Celtis={self.numero_celtis} ({self.beneficiary_name})"
 
     @classmethod
     def get_solo(cls):
@@ -43,10 +56,12 @@ class PaymentConfig(models.Model):
         config, _ = cls.objects.get_or_create(
             id=1,
             defaults={
-                "momo_number": "+229 97 00 00 00",
+                "numero_moov": "",
+                "numero_mtn": "",
+                "numero_celtis": "",
                 "beneficiary_name": "Administration ExamSecure",
                 "instructions": (
-                    "Pour accéder à ce document, veuillez envoyer le montant indiqué au numéro "
+                    "Pour accéder à ce document, veuillez envoyer le montant indiqué au(x) numéro(s) "
                     "Mobile Money de l'administration. Après le paiement, revenez dans l'application "
                     "et envoyez votre reçu (capture d'écran ou PDF) pour vérification."
                 ),

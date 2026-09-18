@@ -157,7 +157,12 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   void _copyMomoNumber() {
-    final number = _config?.momoNumber ?? '+229 97 00 00 00';
+    final List<String> numbers = [];
+    if (_config?.numeroMoov.isNotEmpty == true) numbers.add('Moov: ${_config!.numeroMoov}');
+    if (_config?.numeroMtn.isNotEmpty == true) numbers.add('MTN: ${_config!.numeroMtn}');
+    if (_config?.numeroCeltis.isNotEmpty == true) numbers.add('Celtis: ${_config!.numeroCeltis}');
+    final number = numbers.isNotEmpty ? numbers.join(' | ') : '+229 97 00 00 00';
+    
     Clipboard.setData(ClipboardData(text: number));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -259,7 +264,11 @@ class _PaymentScreenState extends State<PaymentScreen> {
   }
 
   Widget _buildInstructionsStep() {
-    final momoNumber = _config?.momoNumber ?? '+229 97 00 00 00';
+    final List<String> numbers = [];
+    if (_config?.numeroMoov.isNotEmpty == true) numbers.add('Moov: ${_config!.numeroMoov}');
+    if (_config?.numeroMtn.isNotEmpty == true) numbers.add('MTN: ${_config!.numeroMtn}');
+    if (_config?.numeroCeltis.isNotEmpty == true) numbers.add('Celtis: ${_config!.numeroCeltis}');
+    final displayNumbers = numbers.isNotEmpty ? numbers.join('\n') : '+229 97 00 00 00';
     final beneficiary = _config?.beneficiaryName ?? 'Administration ExamSecure';
     final instructions = _config?.instructions ??
         'Pour accéder à ce document, veuillez envoyer le montant exact au numéro Mobile Money ci-dessus.';
@@ -319,17 +328,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
               ),
               const SizedBox(height: 12),
               const Text(
-                'NUMÉRO DE RÉCEPTION',
+                'NUMÉROS DE RÉCEPTION',
                 style: TextStyle(color: Colors.white54, fontSize: 10, fontWeight: FontWeight.w700),
               ),
               const SizedBox(height: 2),
               Text(
-                momoNumber,
+                displayNumbers,
                 style: const TextStyle(
                   color: Colors.white,
-                  fontSize: 22,
+                  fontSize: 16,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.2,
+                  height: 1.5,
                 ),
               ),
               const Divider(color: Colors.white12, height: 24),

@@ -6,7 +6,7 @@ from .models import Transaction, PaymentConfig
 class PaymentConfigSerializer(serializers.ModelSerializer):
     class Meta:
         model = PaymentConfig
-        fields = ["id", "momo_number", "beneficiary_name", "instructions", "is_active", "updated_at"]
+        fields = ["id", "numero_moov", "numero_mtn", "numero_celtis", "beneficiary_name", "instructions", "is_active", "updated_at"]
         read_only_fields = ["id", "updated_at"]
 
 
@@ -75,9 +75,6 @@ class TransactionSerializer(serializers.ModelSerializer):
 
     def get_recu_fichier_url(self, obj):
         if obj.recu_fichier:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.recu_fichier.url)
             return obj.recu_fichier.url
         return None
 

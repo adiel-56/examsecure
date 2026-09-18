@@ -144,7 +144,7 @@ class PaymentStatusView(APIView):
 
         recu_url = None
         if latest_txn.recu_fichier:
-            recu_url = request.build_absolute_uri(latest_txn.recu_fichier.url)
+            recu_url = latest_txn.recu_fichier.url
 
         return Response({
             "statut": latest_txn.statut,

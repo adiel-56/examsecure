@@ -23,9 +23,6 @@ class AchatSerializer(serializers.ModelSerializer):
 
     def get_couverture_url(self, obj):
         if obj.document and obj.document.couverture:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.document.couverture.url)
             return obj.document.couverture.url
         return None
 

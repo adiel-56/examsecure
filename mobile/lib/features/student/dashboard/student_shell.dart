@@ -14,11 +14,15 @@ class StudentShell extends StatefulWidget {
   const StudentShell({super.key});
 
   @override
-  State<StudentShell> createState() => _StudentShellState();
+  State<StudentShell> createState() => StudentShellState();
 }
 
-class _StudentShellState extends State<StudentShell> {
+class StudentShellState extends State<StudentShell> {
   int _index = 0;
+
+  void switchTab(int index) {
+    setState(() => _index = index);
+  }
 
   final _tabs = const [
     HomeTab(),

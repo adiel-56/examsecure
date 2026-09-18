@@ -1,4 +1,5 @@
 import '../core/constants/api_constants.dart';
+import '../core/network/api_client.dart';
 
 class AppTransaction {
   final int id;
@@ -63,7 +64,7 @@ class AppTransaction {
     if (url.startsWith('http://') || url.startsWith('https://')) {
       return url;
     }
-    const base = ApiConstants.baseUrl;
+    final base = ApiClient.instance.dio.options.baseUrl;
     final origin = base.endsWith('/api')
         ? base.substring(0, base.length - 4)
         : (base.endsWith('/api/') ? base.substring(0, base.length - 5) : base);

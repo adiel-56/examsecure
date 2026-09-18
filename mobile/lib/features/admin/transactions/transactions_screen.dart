@@ -681,7 +681,7 @@ class _TransactionDetailSheet extends StatelessWidget {
   }
 }
 
-class _ImageReceiptViewerDialog extends StatelessWidget {
+class _ImageReceiptViewerDialog extends StatefulWidget {
   final String imageUrl;
   final String title;
   final String amount;
@@ -691,6 +691,43 @@ class _ImageReceiptViewerDialog extends StatelessWidget {
     required this.title,
     required this.amount,
   });
+
+  @override
+  State<_ImageReceiptViewerDialog> createState() => _ImageReceiptViewerDialogState();
+}
+
+class _ImageReceiptViewerDialogState extends State<_ImageReceiptViewerDialog> {
+  bool _loading = true;
+  String? _error;
+  Uint8List? _imageBytes;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadImage();
+  }
+
+  Future<void> _loadImage() async {
+    try {
+      final response = await ApiClient.instance.dio.get<List<int>>(
+        widget.imageUrl,
+        options: Options(responseType: ResponseType.bytes),
+      );
+      if (mounted) {
+        setState(() {
+          _imageBytes = Uint8List.fromList(response.data!);
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Erreur : $e\nURL: ${widget.imageUrl}';
+          _loading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -704,8 +741,8 @@ class _ImageReceiptViewerDialog extends StatelessWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
-              Text('Montant : $amount', style: const TextStyle(fontSize: 10.5, color: Colors.white70)),
+              Text(widget.title, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: Colors.white)),
+              Text('Montant : ${widget.amount}', style: const TextStyle(fontSize: 10.5, color: Colors.white70)),
             ],
           ),
           actions: [
@@ -716,45 +753,55 @@ class _ImageReceiptViewerDialog extends StatelessWidget {
           ],
         ),
         body: Center(
-          child: InteractiveViewer(
-            panEnabled: true,
-            minScale: 0.5,
-            maxScale: 6.0,
-            child: Image.network(
-              imageUrl,
-              fit: BoxFit.contain,
-              loadingBuilder: (context, child, progress) {
-                if (progress == null) return child;
-                return const Center(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      CircularProgressIndicator(color: Colors.white),
-                      SizedBox(height: 12),
-                      Text('Chargement de l\'image…', style: TextStyle(color: Colors.white70, fontSize: 12)),
-                    ],
-                  ),
-                );
-              },
-              errorBuilder: (_, __, ___) => const Center(
-                child: Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48),
-                      SizedBox(height: 12),
-                      Text(
-                        'Impossible de charger l\'image du reçu.\nVérifiez la connexion avec le serveur.',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: Colors.white70, fontSize: 12),
+          child: _loading
+              ? const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    CircularProgressIndicator(color: Colors.white),
+                    SizedBox(height: 12),
+                    Text('Chargement de l\'image…', style: TextStyle(color: Colors.white70, fontSize: 12)),
+                  ],
+                )
+              : _error != null || _imageBytes == null
+                  ? Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48),
+                          const SizedBox(height: 12),
+                          Text(
+                            _error ?? 'Erreur inconnue',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: Colors.white70, fontSize: 12),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+                    )
+                  : InteractiveViewer(
+                      panEnabled: true,
+                      minScale: 0.5,
+                      maxScale: 6.0,
+                      child: Image.memory(
+                        _imageBytes!,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => const Padding(
+                          padding: EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.broken_image_outlined, color: Colors.white54, size: 48),
+                              SizedBox(height: 12),
+                              Text(
+                                'Le format de l\'image est invalide.',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: Colors.white70, fontSize: 12),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
         ),
       ),
     );

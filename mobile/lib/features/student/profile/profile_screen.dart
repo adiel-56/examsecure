@@ -6,6 +6,7 @@ import '../../../core/theme/app_theme.dart';
 import '../../../providers/auth_provider.dart';
 import '../devices/devices_screen.dart';
 import '../unlock_requests/unlock_requests_screen.dart';
+import 'settings_screen.dart';
 
 /// Reproduit l'écran « Profil & sécurité » de la maquette : carte
 /// d'en-tête (avatar + badges ÉTUDIANT·E / filière), liste de réglages
@@ -116,18 +117,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onChanged: (v) => setState(() => _notificationsEnabled = v),
                   ),
                 ),
-                _divider(),
-                _SettingsTile(
-                  icon: Icons.lock_outline,
-                  label: 'Sécurité locale',
-                  subtitle: 'Clés AES en Keystore / Keychain',
-                  trailing: const Icon(
-                    Icons.chevron_right,
-                    color: AppColors.faint,
-                    size: 18,
-                  ),
-                  onTap: () {},
-                ),
+
                 _divider(),
                 _SettingsTile(
                   icon: Icons.lock_open_outlined,
@@ -152,7 +142,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     color: AppColors.faint,
                     size: 18,
                   ),
-                  onTap: () {},
+                  onTap: () => Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const SettingsScreen()),
+                  ),
                 ),
               ],
             ),
@@ -213,14 +205,12 @@ class _Pill extends StatelessWidget {
 class _SettingsTile extends StatelessWidget {
   final IconData icon;
   final String label;
-  final String? subtitle;
   final Widget trailing;
   final VoidCallback? onTap;
 
   const _SettingsTile({
     required this.icon,
     required this.label,
-    this.subtitle,
     required this.trailing,
     this.onTap,
   });
@@ -254,16 +244,6 @@ class _SettingsTile extends StatelessWidget {
                       fontSize: 12.5,
                     ),
                   ),
-                  if (subtitle != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      subtitle!,
-                      style: const TextStyle(
-                        fontSize: 10,
-                        color: AppColors.faint,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),

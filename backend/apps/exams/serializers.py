@@ -41,9 +41,6 @@ class DocumentListSerializer(serializers.ModelSerializer):
 
     def get_couverture_url(self, obj):
         if obj.couverture:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.couverture.url)
             return obj.couverture.url
         return None
 
@@ -110,9 +107,6 @@ class DocumentAdminSerializer(serializers.ModelSerializer):
 
     def get_couverture_url(self, obj):
         if obj.couverture:
-            request = self.context.get("request")
-            if request:
-                return request.build_absolute_uri(obj.couverture.url)
             return obj.couverture.url
         return None
 

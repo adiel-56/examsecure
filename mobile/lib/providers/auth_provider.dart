@@ -25,11 +25,34 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
       return;
     }
+
+    // Utilisateur a une session locale. On l'authentifie directement
+    // avec un profil temporaire, puis on tente de mettre à jour le profil.
+    final roleStr = await SecureStorage.instance.role;
+    final userIdStr = await SecureStorage.instance.userId;
+    
+    if (userIdStr != null && roleStr != null) {
+      currentUser = AppUser(
+        id: int.parse(userIdStr),
+        firstName: 'Utilisateur',
+        lastName: '',
+        email: '',
+        phone: '',
+        role: roleFromString(roleStr),
+      );
+      status = AuthStatus.authenticated;
+      notifyListeners(); // Notifie immédiatement pour quitter le splash screen
+    }
+
     try {
       currentUser = await _repository.fetchProfile();
       status = AuthStatus.authenticated;
-    } catch (_) {
-      status = AuthStatus.unauthenticated;
+    } catch (e) {
+      if (e is AppException && e.statusCode == 401) {
+        // Token expiré et impossible à rafraîchir
+        status = AuthStatus.unauthenticated;
+      }
+      // Sinon, on ignore l'erreur (ex: pas de réseau) pour laisser l'utilisateur utiliser l'app hors ligne.
     }
     notifyListeners();
   }

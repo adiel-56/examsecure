@@ -43,4 +43,17 @@ class PurchaseRepository {
       throw ApiClient.instance.mapError(e);
     }
   }
+
+  /// Demande le déblocage d'un achat ayant atteint la limite de téléchargement.
+  Future<void> requestUnlock(int purchaseId, {String? reason}) async {
+    try {
+      final data = reason != null && reason.isNotEmpty ? {'motif': reason} : {};
+      await _dio.post(
+        '${ApiConstants.purchases}$purchaseId/unlock-request/',
+        data: data,
+      );
+    } catch (e) {
+      throw ApiClient.instance.mapError(e);
+    }
+  }
 }

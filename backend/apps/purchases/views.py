@@ -45,3 +45,26 @@ class RequestDownloadView(APIView):
             "download_token": token_value,
             "expires_at": download_token.expiration,
         })
+
+
+class RequestUnlockView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        achat = Achat.objects.filter(pk=pk, etudiant=request.user).first()
+        if not achat:
+            return Response({"detail": "Achat introuvable."}, status=404)
+            
+        motif = request.data.get("motif", "")
+        
+        # Vérifier s'il n'y a pas déjà une demande en attente
+        from .models import UnlockRequest
+        if UnlockRequest.objects.filter(achat=achat, statut=UnlockRequest.Statut.EN_ATTENTE).exists():
+            return Response({"detail": "Vous avez déjà une demande en attente pour cet achat."}, status=400)
+            
+        UnlockRequest.objects.create(
+            achat=achat,
+            motif=motif
+        )
+        
+        return Response({"detail": "Votre demande de déblocage a été envoyée avec succès."}, status=201)

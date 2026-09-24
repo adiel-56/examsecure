@@ -178,16 +178,27 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _loading = true;
-                            _error = null;
-                          });
-                          _prepareDocument();
-                        },
-                        child: const Text('Réessayer'),
-                      ),
+                      if (_error!.contains('Limite de téléchargement'))
+                        ElevatedButton.icon(
+                          onPressed: () => _requestUnlock(context),
+                          icon: const Icon(Icons.lock_open),
+                          label: const Text('Faire une demande de déblocage'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.adminAccent,
+                            foregroundColor: Colors.white,
+                          ),
+                        )
+                      else
+                        ElevatedButton(
+                          onPressed: () {
+                            setState(() {
+                              _loading = true;
+                              _error = null;
+                            });
+                            _prepareDocument();
+                          },
+                          child: const Text('Réessayer'),
+                        ),
                     ],
                   ),
                 ),
@@ -394,6 +405,28 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
               ),
       ),
     );
+  }
+
+  Future<void> _requestUnlock(BuildContext context) async {
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (_) => const Center(child: CircularProgressIndicator()),
+      );
+      await _purchaseRepo.requestUnlock(widget.purchase.id);
+      if (!context.mounted) return;
+      Navigator.of(context).pop(); // remove loader
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Demande de déblocage envoyée avec succès.')),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      Navigator.of(context).pop(); // remove loader
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erreur: ${e.toString()}'), backgroundColor: AppColors.danger),
+      );
+    }
   }
 
   String _friendlyError(String error) {

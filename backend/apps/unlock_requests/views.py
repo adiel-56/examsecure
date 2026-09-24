@@ -12,7 +12,7 @@ class UnlockRequestListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         obj = serializer.save(etudiant=self.request.user)
-        log_action(self.request.user, "UNLOCK_REQUEST_CREATED", "UnlockRequest", obj.id, obj.motif[:200])
+        log_action(self.request.user, "UNLOCK_REQUEST_CREATED", "UnlockRequest", obj.id, obj.motif[:200] if obj.motif else "")
 
 class UnlockRequestDetailView(generics.RetrieveAPIView):
     permission_classes = [permissions.IsAuthenticated]

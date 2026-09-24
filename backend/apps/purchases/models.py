@@ -45,23 +45,4 @@ class Achat(models.Model):
         return f"{self.etudiant} · {self.document.titre}"
 
 
-class UnlockRequest(models.Model):
-    class Statut(models.TextChoices):
-        EN_ATTENTE = "PENDING", "En attente"
-        ACCEPTEE = "APPROVED", "Acceptée"
-        REFUSEE = "REJECTED", "Refusée"
 
-    achat = models.ForeignKey(Achat, on_delete=models.CASCADE, related_name="unlock_requests")
-    statut = models.CharField(max_length=10, choices=Statut.choices, default=Statut.EN_ATTENTE)
-    motif = models.TextField(blank=True, null=True, help_text="Motif de la demande (optionnel)")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    class Meta:
-        ordering = ["-created_at"]
-        verbose_name = "Demande de déblocage"
-        verbose_name_plural = "Demandes de déblocage"
-
-    def __str__(self):
-        return f"Déblocage - {self.achat} ({self.get_statut_display()})"

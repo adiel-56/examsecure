@@ -58,13 +58,16 @@ class RequestUnlockView(APIView):
         motif = request.data.get("motif", "")
         
         # Vérifier s'il n'y a pas déjà une demande en attente
-        from .models import UnlockRequest
-        if UnlockRequest.objects.filter(achat=achat, statut=UnlockRequest.Statut.EN_ATTENTE).exists():
+        from apps.unlock_requests.models import UnlockRequest
+        if UnlockRequest.objects.filter(achat=achat, statut=UnlockRequest.Statut.PENDING).exists():
             return Response({"detail": "Vous avez déjà une demande en attente pour cet achat."}, status=400)
             
-        UnlockRequest.objects.create(
+        obj = UnlockRequest.objects.create(
+            etudiant=request.user,
             achat=achat,
             motif=motif
         )
+        from apps.audit.utils import log_action
+        log_action(request.user, "UNLOCK_REQUEST_CREATED", "UnlockRequest", obj.id, obj.motif[:200] if obj.motif else "")
         
         return Response({"detail": "Votre demande de déblocage a été envoyée avec succès."}, status=201)

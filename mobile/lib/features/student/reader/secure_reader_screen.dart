@@ -143,18 +143,18 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
         '${auth.currentUser?.fullName ?? ''} · ID ${auth.currentUser?.id ?? ''} · ${_todayLabel()}';
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0B1220),
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: _loading
             ? const Center(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    CircularProgressIndicator(color: Colors.white),
+                    CircularProgressIndicator(color: Colors.black),
                     SizedBox(height: 14),
                     Text(
                       'Déchiffrement sécurisé en mémoire…',
-                      style: TextStyle(color: Colors.white70, fontSize: 12),
+                      style: TextStyle(color: Colors.black54, fontSize: 12),
                     ),
                   ],
                 ),
@@ -174,7 +174,7 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                       const SizedBox(height: 12),
                       Text(
                         _friendlyError(_error!),
-                        style: const TextStyle(color: Colors.white70),
+                        style: const TextStyle(color: Colors.black54),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 16),
@@ -213,7 +213,7 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                         IconButton(
                           icon: const Icon(
                             Icons.arrow_back,
-                            color: Colors.white,
+                            color: Colors.black,
                             size: 20,
                           ),
                           onPressed: () => Navigator.of(context).pop(),
@@ -224,7 +224,7 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
-                              color: Colors.white,
+                              color: Colors.black,
                               fontWeight: FontWeight.w700,
                               fontSize: 13,
                             ),
@@ -236,10 +236,10 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                             vertical: 5,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: .12),
+                            color: Colors.black.withValues(alpha: .05),
                             borderRadius: BorderRadius.circular(999),
                             border: Border.all(
-                              color: Colors.white.withValues(alpha: .2),
+                              color: Colors.black.withValues(alpha: .1),
                             ),
                           ),
                           child: const Row(
@@ -250,7 +250,7 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                               Text(
                                 'HORS LIGNE',
                                 style: TextStyle(
-                                  color: Colors.white,
+                                  color: Colors.black,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w800,
                                 ),
@@ -275,6 +275,8 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                           if (_pdfController != null)
                             PdfView(
                               controller: _pdfController!,
+                              scrollDirection: Axis.vertical,
+                              pageSnapping: false,
                               onPageChanged: (page) {
                                 setState(() => _currentPage = page);
                               },
@@ -349,19 +351,30 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
                         ),
                         const SizedBox(width: 10),
                         Expanded(
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 9),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: .08),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              'Page $_currentPage / $_totalPages',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                          child: InkWell(
+                            onTap: () => _showPageSearchDialog(context),
+                            borderRadius: BorderRadius.circular(999),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(vertical: 9),
+                              decoration: BoxDecoration(
+                                color: Colors.black.withValues(alpha: .05),
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              alignment: Alignment.center,
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Icon(Icons.search, color: Colors.black54, size: 12),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    'Page $_currentPage / $_totalPages',
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
@@ -442,6 +455,53 @@ class _SecureReaderScreenState extends State<SecureReaderScreen> {
     return error.replaceAll('Exception:', '').replaceAll('AppException:', '').trim();
   }
 
+  void _showPageSearchDialog(BuildContext context) {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        title: const Text('Aller à la page', style: TextStyle(color: Colors.white)),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+          style: const TextStyle(color: Colors.white),
+          decoration: InputDecoration(
+            hintText: 'Ex: 5 (max $_totalPages)',
+            hintStyle: const TextStyle(color: Colors.white54),
+            enabledBorder: const UnderlineInputBorder(borderSide: BorderSide(color: Colors.white30)),
+            focusedBorder: const UnderlineInputBorder(borderSide: BorderSide(color: AppColors.adminAccent)),
+          ),
+          autofocus: true,
+          onSubmitted: (value) => _jumpToPage(value, context),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Annuler', style: TextStyle(color: Colors.white70)),
+          ),
+          ElevatedButton(
+            onPressed: () => _jumpToPage(controller.text, context),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.adminAccent),
+            child: const Text('Aller', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _jumpToPage(String value, BuildContext context) {
+    final page = int.tryParse(value);
+    if (page != null && page >= 1 && page <= _totalPages) {
+      _pdfController?.animateToPage(
+        page,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+      Navigator.pop(context);
+    }
+  }
+
   String _todayLabel() {
     final now = DateTime.now();
     return '${now.day.toString().padLeft(2, '0')}/${now.month.toString().padLeft(2, '0')}/${now.year}';
@@ -475,10 +535,10 @@ class _NavButton extends StatelessWidget {
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: .08),
+          color: Colors.black.withValues(alpha: .05),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: Colors.white, size: 18),
+        child: Icon(icon, color: Colors.black, size: 18),
       ),
     );
   }

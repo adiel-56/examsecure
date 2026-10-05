@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import '../constants/api_constants.dart';
 import '../errors/app_exception.dart';
 import '../storage/secure_storage.dart';
+import 'cache_interceptor.dart';
 
 /// Client HTTP central. Gère automatiquement :
 /// - l'ajout du header Authorization
@@ -18,6 +19,7 @@ class ApiClient {
       ),
     );
     _dio.interceptors.add(_authInterceptor());
+    _dio.interceptors.add(CacheInterceptor());
   }
 
   static final ApiClient instance = ApiClient._internal();
